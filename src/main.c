@@ -1,6 +1,5 @@
-#include "d_registers.h"
-#include <inttypes.h>
-#include <stdint.h>
+#include "types.h"
+#include "r_registers.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -8,15 +7,15 @@ typedef struct {
   union {
     struct {
       // BYTE 1
-      uint8_t w : 1;
-      uint8_t d : 1;
-      uint8_t op_code : 6;
+      u8 w : 1;
+      u8 d : 1;
+      u8 op_code : 6;
       // BYTE 2
-      uint8_t rm : 3;
-      uint8_t reg : 3;
-      uint8_t mod : 2;
+      u8 rm : 3;
+      u8 reg : 3;
+      u8 mod : 2;
     } fields;
-    uint16_t bits;
+    u16 bits;
   };
 } instruction_t;
 
@@ -47,10 +46,19 @@ int main(int argc, char **argv) {
   }
 
   printf("bits 16\n");
+
   while(fread(&inst, sizeof(inst), 1, file) == 1) {
-    register_e reg_f = get_reg(inst.fields.reg, inst.fields.w);
-    register_e reg_t = get_reg(inst.fields.rm, inst.fields.w);
-    printf("mov %s, %s\n", register_names[reg_t], register_names[reg_f]);
+    
+    field_enc_e regf = query_reg_table(inst.fields.reg, inst.fields.w);
+    field_enc_e rmf = query_reg_table(inst.fields.rm, inst.fields.w);
+
+    
+
+    printf("mov %s, %s ; ", field_enc_to_str[rmf], field_enc_to_str[regf]);
+    print_instruction(&inst);
+    printf("\n");
   }
+
   return 0;
 }
+
